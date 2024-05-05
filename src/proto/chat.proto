@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package chat;
+import "global.proto";
+
+service ChatService {
+  rpc CreateChat(CreateChatInput) returns (global.Chat) {}
+  rpc SetRead(SetReadInput) returns (global.Message) {}
+  rpc EditMsg(UpdateChatMsgInput) returns (global.Message) {}
+  rpc DeleteMsg(DeleteChatInput) returns (global.Message) {}
+}
+
+message CreateChatInput {
+  string message = 1;
+  string roomId = 2;
+  optional global.FileHeader file = 3;
+}
+
+message SetReadInput {
+  repeated string chatIds = 1;
+  string roomId = 2;
+}
+
+message UpdateChatMsgInput {
+  string roomId = 1;
+  string chatId = 2;
+  string message = 3;
+}
+
+message DeleteChatInput {
+  string roomId = 1;
+  string chatId = 2;
+}

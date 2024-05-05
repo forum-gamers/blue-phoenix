@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package room;
+
+import "global.proto";
+
+service RoomService {
+  rpc CreateRoom(CreateRoomInput) returns (global.Room) {}
+  rpc DeleteUser(UserRoomInput) returns (global.Message) {}
+  rpc LeaveRoom(RoomId) returns (global.Message) {}
+  rpc SetAdmin(UserRoomInput) returns (global.RepeatedUserRoom) {}
+  rpc DownAdmin(UserRoomInput) returns (global.RepeatedUserRoom) {}
+  rpc GetUserRoom(global.Pagination) returns (global.DataWithMetadata) {}
+  rpc GetRoomById(RoomId) returns (global.Room) {}
+}
+
+message RoomId {
+  string roomId = 1;
+}
+
+message CreateRoomInput {
+  repeated string users = 1;
+  optional string description = 2;
+  optional string name = 3;
+  optional global.FileHeader file = 4;
+}
+
+message UserRoomInput {
+  string userId = 1;
+  string roomId = 2;
+}

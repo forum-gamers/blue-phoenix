@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package global;
+
+import "google/protobuf/any.proto";
+
+message Room {
+  string type = 1;
+  repeated UserRoom users = 2;
+  string description = 3;
+  optional string image = 4;
+  optional string imageId = 5;
+  optional string name = 6;
+  optional string owner = 7;
+  string _id = 8;
+  repeated Chat chat = 9;
+}
+
+message UserRoom {
+  string userId = 1;
+  string addedAt = 2;
+  string role = 3;
+}
+
+message Chat {
+  string _id = 1;
+  string senderId = 2;
+  string message = 3;
+  optional string image = 4;
+  optional string imageId = 5;
+  optional string mediaType = 6;
+  bool isRead = 7;
+  string status = 8;
+  string createdAt = 9;
+  string updatedAt = 10;
+}
+
+message Message {
+  string message = 1;
+}
+
+message RepeatedUserRoom {
+  repeated UserRoom users = 1;
+}
+
+message FileHeader {
+  string contentType = 1;
+  string url = 2;
+  string fileId = 3;
+}
+
+message DataWithMetadata {
+  int64 totalData = 1;
+  int32 limit = 2;
+  int32 page = 3;
+  int32 totalPage = 4;
+  google.protobuf.Any data = 5;
+}
+
+message NoArgument {}
+
+message Pagination {
+  int32 page = 1;
+  int32 limit = 2;
+}
