@@ -1,6 +1,6 @@
-import type { RoomChatDocument } from "../models/room.schema";
-import type { FileInput } from ".";
-import type { RoomType } from "./schema";
+import type { RoomChatDocument } from '../models/room.schema';
+import type { BasePaginationInput, FileInput } from '.';
+import type { RoomType } from './schema';
 
 export interface CreateRoomInput {
   users: string[];
@@ -15,7 +15,11 @@ export interface DeleteUserInput {
 }
 
 export interface ListRoom {
-  _id: RoomType | "";
+  _id: RoomType | '';
   data: RoomChatDocument[];
   total: number;
+}
+
+export interface PaginationWithRoomType extends BasePaginationInput {
+  type: RoomType | 'All';
 }

@@ -274,11 +274,15 @@ export class RoomController {
   @GrpcMethod(ROOM_SERVICE, ROOM_SERVICE_METHOD.GETUSERROOM)
   public async getUserRoom(payload: any, metadata: Metadata) {
     const { UUID } = helpers.getUserFromMetadata(metadata);
-    const { page, limit } =
-      await this.roomValidation.validateBasePagination(payload);
+    const {
+      page,
+      limit,
+      type = 'All',
+    } = await this.roomValidation.validateGetUserRoom(payload);
 
     const { data, total } = await this.roomService.getUserRoom(
       UUID,
+      type,
       (page - 1) * limit,
       limit,
     );

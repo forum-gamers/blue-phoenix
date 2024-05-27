@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import BaseValidation from '../../base/validation.base';
 import * as yup from 'yup';
-import type { CreateRoomInput, DeleteUserInput } from '../../interfaces/room';
+import type {
+  CreateRoomInput,
+  DeleteUserInput,
+  PaginationWithRoomType,
+} from '../../interfaces/room';
 
 @Injectable()
 export class RoomValidator extends BaseValidation {
@@ -43,6 +47,20 @@ export class RoomValidator extends BaseValidation {
     await this.validate<{ roomId: string }>(
       yup.object().shape({
         roomId: this.validateRequiredObjectId('roomId'),
+      }),
+      data,
+    );
+
+  public validateGetUserRoom = async (data: any) =>
+    await this.validate<PaginationWithRoomType>(
+      yup.object().shape({
+        page: yup.number().default(1),
+        limit: yup.number().default(20),
+        type: yup
+          .string()
+          .oneOf(['Private', 'Group', 'All'], 'invalid type')
+          .default('All')
+          .optional(),
       }),
       data,
     );

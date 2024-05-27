@@ -1,10 +1,10 @@
-import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import type { Document } from "mongoose";
-import type { ChatAttributes, RoomType, RoomUser } from "../interfaces/schema";
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import type { Document } from 'mongoose';
+import type { ChatAttributes, RoomType, RoomUser } from '../interfaces/schema';
 
-@Schema({ timestamps: true, collection: "Room" })
+@Schema({ timestamps: true, collection: 'rooms' })
 export class RoomChat {
-  @Prop({ required: true, type: String, enum: ["Private", "Group"] })
+  @Prop({ required: true, type: String, enum: ['Private', 'Group'] })
   public type: RoomType;
 
   @Prop([
@@ -20,13 +20,13 @@ export class RoomChat {
       role: {
         type: String,
         required: true,
-        enum: ["Admin", "Member"],
+        enum: ['Admin', 'Member'],
       },
     },
   ])
   public users: RoomUser[];
 
-  @Prop({ type: String, default: "N/A" })
+  @Prop({ type: String, default: 'N/A' })
   public description: string;
 
   @Prop({ type: String, required: false })
@@ -60,7 +60,7 @@ export class RoomChat {
       },
       mediaType: {
         type: String,
-        enum: ["image", "video"],
+        enum: ['image', 'video'],
         required: false,
       },
       isRead: {
@@ -69,8 +69,8 @@ export class RoomChat {
       },
       status: {
         type: String,
-        enum: ["plain", "updated", "deleted"],
-        default: "plain",
+        enum: ['plain', 'updated', 'deleted'],
+        default: 'plain',
       },
       createdAt: {
         type: Date,

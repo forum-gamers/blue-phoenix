@@ -10,7 +10,7 @@ service RoomService {
   rpc LeaveRoom(RoomId) returns (global.Message) {}
   rpc SetAdmin(UserRoomInput) returns (global.RepeatedUserRoom) {}
   rpc DownAdmin(UserRoomInput) returns (global.RepeatedUserRoom) {}
-  rpc GetUserRoom(global.Pagination) returns (global.DataWithMetadata) {}
+  rpc GetUserRoom(PaginationWithRoomType) returns (global.DataWithMetadata) {}
   rpc GetRoomById(RoomId) returns (global.Room) {}
 }
 
@@ -28,4 +28,10 @@ message CreateRoomInput {
 message UserRoomInput {
   string userId = 1;
   string roomId = 2;
+}
+
+message PaginationWithRoomType {
+  int32 page = 1;
+  int32 limit = 2;
+  string type = 3;
 }

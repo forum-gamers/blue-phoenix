@@ -1,8 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { type Model, Types, type UpdateQuery } from 'mongoose';
+import {
+  type Model,
+  Types,
+  type UpdateQuery,
+  type PipelineStage,
+} from 'mongoose';
 import type { RoomChatDocument } from '../../models/room.schema';
-import type { ChatAttributes } from '../../interfaces/schema';
+import type { ChatAttributes, RoomType } from '../../interfaces/schema';
 import type { ListRoom } from 'src/interfaces/room';
 
 @Injectable()
@@ -17,7 +22,7 @@ export class RoomService {
   }
 
   public async findById(id: Types.ObjectId | string) {
-    return (await this.roomRepo.findById(id)) as RoomChatDocument | null;
+    return await this.roomRepo.findById(id);
   }
 
   public async pullUser(roomId: Types.ObjectId, userId: string) {
@@ -106,18 +111,22 @@ export class RoomService {
 
   public async getUserRoom(
     userId: string,
+    type: RoomType | 'All' = 'All',
     $skip = 0,
     $limit = 20,
   ): Promise<ListRoom> {
     try {
-      const [result] = await this.roomRepo.aggregate<ListRoom>([
-        {
-          $match: {
-            users: {
-              $elemMatch: { userId },
-            },
+      const match: PipelineStage.Match = {
+        $match: {
+          users: {
+            $elemMatch: { userId },
           },
         },
+      };
+      if (type && ['Private', 'Group'].includes(type)) match.$match.type = type;
+
+      const [result] = await this.roomRepo.aggregate<ListRoom>([
+        match,
         {
           $facet: {
             data: [
@@ -154,6 +163,8 @@ export class RoomService {
           },
         },
       ]);
+      if (!result) throw {};
+
       return result;
     } catch (err) {
       return {
