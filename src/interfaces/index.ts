@@ -9,4 +9,4 @@ export interface BasePaginationInput {
   limit: number;
 }
 
-export type AccountType = 'Admin' | 'Coach' | 'Professional';
+export type AccountType = 'Admin' | 'Coach' | 'Vendors' | null;

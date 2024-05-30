@@ -12,10 +12,15 @@ service RoomService {
   rpc DownAdmin(UserRoomInput) returns (global.RepeatedUserRoom) {}
   rpc GetUserRoom(PaginationWithRoomType) returns (global.DataWithMetadata) {}
   rpc GetRoomById(RoomId) returns (global.Room) {}
+  rpc GetUserRoomByUserId(UserId) returns (global.Room) {}
 }
 
 message RoomId {
   string roomId = 1;
+}
+
+message UserId {
+  string userId = 1;
 }
 
 message CreateRoomInput {

@@ -20,7 +20,7 @@ export class RoomController {
 
   @GrpcMethod(ROOM_SERVICE, ROOM_SERVICE_METHOD.CREATEROOM)
   public async createRoom(data: any, metadata: Metadata) {
-    const { UUID } = helpers.getUserFromMetadata(metadata);
+    const { id } = helpers.getUserFromMetadata(metadata);
     const { users, name, description, file } =
       await this.roomValidation.validateCreateRoom(data);
 
@@ -28,7 +28,7 @@ export class RoomController {
     if (users.length > 1) {
       payload.name = name ?? 'No Name';
       payload.description = description ?? '';
-      payload.owner = UUID;
+      payload.owner = id;
       if (file) {
         const { fileId, url } = file;
 
@@ -44,13 +44,13 @@ export class RoomController {
           userId,
           addedAt: new Date(),
           role:
-            userId === UUID && payload.type === 'Group'
+            userId === id && payload.type === 'Group'
               ? 'Admin'
               : ('Member' as RoomRole),
         }))
-        .filter(({ userId }) => userId !== UUID),
+        .filter(({ userId }) => userId !== id),
       {
-        userId: UUID,
+        userId: id,
         addedAt: new Date(),
         role: payload.type === 'Group' ? 'Admin' : 'Member',
       },
@@ -69,11 +69,11 @@ export class RoomController {
 
   @GrpcMethod(ROOM_SERVICE, ROOM_SERVICE_METHOD.DELETEUSER)
   public async deleteUser(payload: any, metadata: Metadata) {
-    const { UUID } = helpers.getUserFromMetadata(metadata);
+    const { id } = helpers.getUserFromMetadata(metadata);
     const { roomId, userId } =
       await this.roomValidation.validateDeleteUser(payload);
 
-    if (UUID === userId)
+    if (id === userId)
       throw new RpcException({
         message: 'cannot self delete',
         code: Status.PERMISSION_DENIED,
@@ -89,8 +89,8 @@ export class RoomController {
       });
 
     if (
-      data.users.find((el) => el.userId === UUID)?.role !== 'Admin' ||
-      data.owner !== UUID ||
+      data.users.find((el) => el.userId === id)?.role !== 'Admin' ||
+      data.owner !== id ||
       data.type === 'Private'
     )
       throw new RpcException({
@@ -107,7 +107,7 @@ export class RoomController {
 
     if (
       data.users.find((el) => el.userId === user.userId)?.role === 'Admin' &&
-      data.owner !== UUID
+      data.owner !== id
     )
       throw new RpcException({
         message: 'Cannot delete admin',
@@ -121,7 +121,7 @@ export class RoomController {
 
   @GrpcMethod(ROOM_SERVICE, ROOM_SERVICE_METHOD.LEAVEROOM)
   public async leaveRoom(payload: any, metadata: Metadata) {
-    const { UUID } = helpers.getUserFromMetadata(metadata);
+    const { id } = helpers.getUserFromMetadata(metadata);
     const { roomId } = await this.roomValidation.validateRoomId(payload);
 
     const roomObjectId = new Types.ObjectId(roomId);
@@ -142,12 +142,12 @@ export class RoomController {
     const query: UpdateQuery<RoomChatDocument> = {
       $pull: {
         users: {
-          userId: UUID,
+          userId: id,
         },
       },
     };
 
-    if (data.owner === UUID) {
+    if (data.owner === id) {
       for (let i = data.users.length - 1; i >= 0; i--)
         if (data.users[i].role === 'Admin') {
           query.$set = {
@@ -170,7 +170,7 @@ export class RoomController {
 
   @GrpcMethod(ROOM_SERVICE, ROOM_SERVICE_METHOD.SETADMIN)
   public async setAdmin(payload: any, metadata: Metadata) {
-    const { UUID } = helpers.getUserFromMetadata(metadata);
+    const { id } = helpers.getUserFromMetadata(metadata);
     const { userId, roomId } =
       await this.roomValidation.validateDeleteUser(payload);
 
@@ -189,8 +189,8 @@ export class RoomController {
         code: Status.PERMISSION_DENIED,
       });
 
-    const userRole = data.users.find((el) => el.userId === UUID);
-    if (!userRole || userRole.role !== 'Admin' || data.owner !== UUID)
+    const userRole = data.users.find((el) => el.userId === id);
+    if (!userRole || userRole.role !== 'Admin' || data.owner !== id)
       throw new RpcException({
         message: 'Forbidden',
         code: Status.PERMISSION_DENIED,
@@ -225,7 +225,7 @@ export class RoomController {
 
   @GrpcMethod(ROOM_SERVICE, ROOM_SERVICE_METHOD.DOWNADMIN)
   public async downAdmin(payload: any, metadata: Metadata) {
-    const { UUID } = helpers.getUserFromMetadata(metadata);
+    const { id } = helpers.getUserFromMetadata(metadata);
     const { userId, roomId } =
       await this.roomValidation.validateDeleteUser(payload);
 
@@ -244,7 +244,7 @@ export class RoomController {
         code: Status.PERMISSION_DENIED,
       });
 
-    if (data.owner !== UUID || userId === UUID)
+    if (data.owner !== id || userId === id)
       throw new RpcException({
         message: 'Forbidden',
         code: Status.PERMISSION_DENIED,
@@ -273,7 +273,7 @@ export class RoomController {
 
   @GrpcMethod(ROOM_SERVICE, ROOM_SERVICE_METHOD.GETUSERROOM)
   public async getUserRoom(payload: any, metadata: Metadata) {
-    const { UUID } = helpers.getUserFromMetadata(metadata);
+    const { id } = helpers.getUserFromMetadata(metadata);
     const {
       page,
       limit,
@@ -281,7 +281,7 @@ export class RoomController {
     } = await this.roomValidation.validateGetUserRoom(payload);
 
     const { data, total } = await this.roomService.getUserRoom(
-      UUID,
+      id,
       type,
       (page - 1) * limit,
       limit,
@@ -313,7 +313,7 @@ export class RoomController {
 
   @GrpcMethod(ROOM_SERVICE, ROOM_SERVICE_METHOD.GETBYID)
   public async findById(payload: any, metadata: Metadata) {
-    const { UUID } = helpers.getUserFromMetadata(metadata);
+    const { id } = helpers.getUserFromMetadata(metadata);
     const { roomId } = await this.roomValidation.validateRoomId(payload);
 
     const roomObjectId = new Types.ObjectId(roomId);
@@ -324,7 +324,7 @@ export class RoomController {
         code: Status.NOT_FOUND,
       });
 
-    if (!data.users.find((el) => el.userId === UUID))
+    if (!data.users.find((el) => el.userId === id))
       throw new RpcException({
         message: 'Forbidden',
         code: Status.PERMISSION_DENIED,
@@ -345,5 +345,26 @@ export class RoomController {
           senderId: el.senderId,
         })),
     };
+  }
+
+  @GrpcMethod(ROOM_SERVICE, ROOM_SERVICE_METHOD.GETUSERROOMBYUSERID)
+  public async getRoomByUserId(payload: any, metadata: Metadata) {
+    const { userId } = await this.roomValidation.validateUserId(payload);
+    const { id } = helpers.getUserFromMetadata(metadata);
+
+    const data = await this.roomService.findByUserId(userId);
+    if (!data)
+      throw new RpcException({
+        message: 'data not found',
+        code: Status.NOT_FOUND,
+      });
+
+    if (!data.users.some((el) => el.userId === id))
+      throw new RpcException({
+        message: 'access denied',
+        code: Status.PERMISSION_DENIED,
+      });
+
+    return data;
   }
 }

@@ -20,8 +20,7 @@ export class ChatController {
 
   @GrpcMethod(CHAT_SERVICE, CHAT_SERVICE_METHOD.CREATECHAT)
   public async createChat(payload: any, metadata: Metadata) {
-    console.log(payload);
-    const { UUID } = helpers.getUserFromMetadata(metadata);
+    const { id } = helpers.getUserFromMetadata(metadata);
     const { message, roomId, file } =
       await this.chatValidator.validateCreateChat(payload);
 
@@ -34,14 +33,14 @@ export class ChatController {
         code: Status.NOT_FOUND,
       });
 
-    if (!data.users.find((el) => el.userId === UUID))
+    if (!data.users.find((el) => el.userId === id))
       throw new RpcException({
         message: 'unauthorized',
         code: Status.PERMISSION_DENIED,
       });
 
     const chat: ChatAttributes = {
-      senderId: UUID,
+      senderId: id,
       isRead: false,
       status: 'plain',
     } as ChatAttributes;
@@ -67,7 +66,7 @@ export class ChatController {
 
   @GrpcMethod(CHAT_SERVICE, CHAT_SERVICE_METHOD.SETREAD)
   public async setRead(payload: any, metadata: Metadata) {
-    const { UUID } = helpers.getUserFromMetadata(metadata);
+    const { id } = helpers.getUserFromMetadata(metadata);
     const { roomId, chatIds } =
       await this.chatValidator.validateSetRead(payload);
 
@@ -86,7 +85,7 @@ export class ChatController {
 
     for (const chatId of chatIds) {
       const idx = data.chats.findIndex((el) => el._id.toString() === chatId);
-      if (idx !== -1 && data.chats[idx].senderId !== UUID)
+      if (idx !== -1 && data.chats[idx].senderId !== id)
         query.$set[`chats.${idx}.isRead`] = true;
     }
 
@@ -97,7 +96,7 @@ export class ChatController {
 
   @GrpcMethod(CHAT_SERVICE, CHAT_SERVICE_METHOD.EDITMESSAGE)
   public async editMsg(payload: any, metadata: Metadata) {
-    const { UUID } = helpers.getUserFromMetadata(metadata);
+    const { id } = helpers.getUserFromMetadata(metadata);
     const { chatId, roomId, message } =
       await this.chatValidator.validateEditMsg(payload);
 
@@ -117,7 +116,7 @@ export class ChatController {
         code: Status.NOT_FOUND,
       });
 
-    if (data.chats[chatIdx].senderId !== UUID)
+    if (data.chats[chatIdx].senderId !== id)
       throw new RpcException({
         message: 'Forbidden',
         code: Status.PERMISSION_DENIED,
@@ -134,7 +133,7 @@ export class ChatController {
 
   @GrpcMethod(CHAT_SERVICE, CHAT_SERVICE_METHOD.DELETEMESSAGE)
   public async deleteMsg(payload: any, metadata: Metadata) {
-    const { UUID } = helpers.getUserFromMetadata(metadata);
+    const { id } = helpers.getUserFromMetadata(metadata);
     const { chatId, roomId } =
       await this.chatValidator.validateDeleteMsg(payload);
 
@@ -154,7 +153,7 @@ export class ChatController {
         code: Status.NOT_FOUND,
       });
 
-    if (data.chats[chatIdx].senderId !== UUID)
+    if (data.chats[chatIdx].senderId !== id)
       throw new RpcException({
         message: 'Forbidden',
         code: Status.PERMISSION_DENIED,

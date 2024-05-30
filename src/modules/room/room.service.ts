@@ -163,7 +163,7 @@ export class RoomService {
           },
         },
       ]);
-      if (!result) throw {};
+      if (!result) throw new Error();
 
       return result;
     } catch (err) {
@@ -173,5 +173,12 @@ export class RoomService {
         total: 0,
       };
     }
+  }
+
+  public async findByUserId(userId: string) {
+    return await this.roomRepo.findOne({
+      'users.userId': userId,
+      type: 'Private',
+    });
   }
 }

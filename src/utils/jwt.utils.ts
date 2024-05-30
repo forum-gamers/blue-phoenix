@@ -6,13 +6,15 @@ import {
   decode,
   type DecodeOptions,
 } from 'jsonwebtoken';
-import type { AccountType } from 'src/interfaces';
+import type { AccountType } from '../interfaces';
 
 export type JwtValue = JwtPayload & TokenValue;
 
 export interface TokenValue {
   id: string;
-  accountType: AccountType;
+  accountType: AccountType | null;
+  username: string;
+  isVerified: boolean;
 }
 
 export default new (class JWT {

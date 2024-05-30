@@ -51,6 +51,17 @@ export class RoomValidator extends BaseValidation {
       data,
     );
 
+  public validateUserId = async (data: any) =>
+    await this.validate<{ userId: string }>(
+      yup.object().shape({
+        userId: yup
+          .string()
+          .uuid('invalid uuid')
+          .required('userId is required'),
+      }),
+      data,
+    );
+
   public validateGetUserRoom = async (data: any) =>
     await this.validate<PaginationWithRoomType>(
       yup.object().shape({
