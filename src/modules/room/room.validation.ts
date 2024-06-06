@@ -15,7 +15,6 @@ export class RoomValidator extends BaseValidation {
         users: yup
           .array()
           .required('users is required')
-          .transform((val: string) => val.split(','))
           .of(yup.string().uuid('invalid uuid'))
           .min(1)
           .test('unique value', 'value must be unique', (val) =>
